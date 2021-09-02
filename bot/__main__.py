@@ -29,6 +29,8 @@ from bot.helper import get_text, check_heroku
 
 from .modules import authorize, list, cancel_mirror, mirror_status, mirror, clone, watch, shell, eval, delete, speedtest, count, reboot
 
+now=datetime.now(pytz.timezone('Asia/Kolkata'))
+
 
 def stats(update, context):
     currentTime = get_readable_time(time.time() - botStartTime)
