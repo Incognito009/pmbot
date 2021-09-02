@@ -76,7 +76,7 @@ def _create_projects(cloud, count):
     global project_create_ops
     batch = cloud.new_batch_http_request(callback=_pc_resp)
     new_projs = []
-    for _ in range(count):
+    for i in range(count):
         new_proj = _generate_id()
         new_projs.append(new_proj)
         batch.add(cloud.projects().create(body={'project_id': new_proj}))
