@@ -39,9 +39,10 @@ ariaDlManager = AriaDownloadHelper()
 ariaDlManager.start_listener()
 
 class MirrorListener(listeners.MirrorListeners):
-    def __init__(self, bot, update, pswd, isTar=False, extract=False, isZip=False, isQbit=False):
+    def __init__(self, bot, update, pswd, isTar=False, tag=None, extract=False, isZip=False, isQbit=False):
         super().__init__(bot, update)
         self.isTar = isTar
+        self.tag = tag
         self.extract = extract
         self.isZip = isZip
         self.isQbit = isQbit
@@ -74,6 +75,7 @@ class MirrorListener(listeners.MirrorListeners):
                 name = os.listdir(f'{DOWNLOAD_DIR}{self.uid}')[0]
             m_path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
         if self.isTar:
+            download.is_archiving = True
             try:
                 with download_dict_lock:
                     download_dict[self.uid] = TarStatus(name, m_path, size)
@@ -87,6 +89,7 @@ class MirrorListener(listeners.MirrorListeners):
             except:
                 os.remove(m_path)
         elif self.extract:
+            download.is_extracting = True
             try:
                 path = fs_utils.get_base_name(m_path)
                 LOGGER.info(f"Extracting: {name}")
@@ -112,6 +115,8 @@ class MirrorListener(listeners.MirrorListeners):
             path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
         up_name = pathlib.PurePath(path).name
         up_path = f'{DOWNLOAD_DIR}{self.uid}/{up_name}'
+        if up_name == "None":
+            up_name = "".join(os.listdir(f'{DOWNLOAD_DIR}{self.uid}/'))
         LOGGER.info(f"Upload Name: {up_name}")
         drive = gdriveTools.GoogleDriveHelper(up_name, self)
         size = fs_utils.get_path_size(up_path)
@@ -131,6 +136,7 @@ class MirrorListener(listeners.MirrorListeners):
                 fs_utils.clean_download(download.path())
             except Exception as e:
                 LOGGER.error(str(e))
+                pass
             count = len(download_dict)
         if self.message.from_user.username:
             uname = f"@{self.message.from_user.username}"
@@ -160,7 +166,7 @@ class MirrorListener(listeners.MirrorListeners):
                 msg += f'\n<b>Type: </b><code>{typ}</code>'
             buttons = button_build.ButtonMaker()
             if SHORTENER is not None and SHORTENER_API is not None:
-                surl = short_url(link)
+                surl = requests.get(f'https://{SHORTENER}/api?api={SHORTENER_API}&url={link}&format=text').text
                 buttons.buildbutton("☁️ Drive Link", surl)
             else:
                 buttons.buildbutton("☁️ Drive Link", link)
@@ -171,14 +177,15 @@ class MirrorListener(listeners.MirrorListeners):
                 if os.path.isdir(f'{DOWNLOAD_DIR}/{self.uid}/{download_dict[self.uid].name()}'):
                     share_url += '/'
                     if SHORTENER is not None and SHORTENER_API is not None:
-                        siurl = short_url(share_url)
+                        siurl = requests.get(f'https://{SHORTENER}/api?api={SHORTENER_API}&url={share_url}&format=text').text
                         buttons.buildbutton("⚡ Index Link", siurl)
                     else:
                         buttons.buildbutton("⚡ Index Link", share_url)
                 else:
                     share_urls = f'{INDEX_URL}/{url_path}?a=view'
                     if SHORTENER is not None and SHORTENER_API is not None:
-                        siurl = short_url(share_url)
+                        siurl = requests.get(f'https://{SHORTENER}/api?api={SHORTENER_API}&url={share_url}&format=text').text
+                        siurls = requests.get(f'https://{SHORTENER}/api?api={SHORTENER_API}&url={share_urls}&format=text').text
                         buttons.buildbutton("⚡ Index Link", siurl)
                         if VIEW_LINK:
                             siurls = short_url(share_urls)
@@ -198,14 +205,22 @@ class MirrorListener(listeners.MirrorListeners):
             else:
                 uname = f'<a href="tg://user?id={self.message.from_user.id}">{self.message.from_user.first_name}</a>'
             if uname is not None:
-                msg += f'\n\ncc: {uname}'
+                msg += f'\n\n<b>#Uploaded By {uname}</b>\n\n<b>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</b>'
+                msg_g = f'\n\n - <b><i>Never Share G-Drive/Index Link.</i></b>\n - <b><i>Join TD To Access G-Drive Link.</i></b>\n\n<b>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</b>'
             try:
                 fs_utils.clean_download(download_dict[self.uid].path())
             except FileNotFoundError:
                 pass
             del download_dict[self.uid]
             count = len(download_dict)
-        sendMarkup(msg, self.bot, self.update, InlineKeyboardMarkup(buttons.build_menu(2)))
+        fwdpm = f'\n\n<b>You Can Find Upload In Private Chat</b>\n\n<b>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</b>'
+        logmsg = sendLog(msg + msg_g, self.bot, self.update, InlineKeyboardMarkup(buttons.build_menu(2)))
+        if logmsg:
+            log_m = f"\n\n<b>Link Uploaded, Click Below Button</b>"
+        else:
+            pass
+        sendMarkup(msg + log_m + fwdpm, self.bot, self.update, InlineKeyboardMarkup([[InlineKeyboardButton(text="CLICK HERE", url=logmsg.link)]]))
+        sendPrivate(msg + msg_g, self.bot, self.update, InlineKeyboardMarkup(buttons.build_menu(2)))
         if count == 0:
             self.clean()
         else:
@@ -236,7 +251,13 @@ def _mirror(bot, update, isTar=False, extract=False, isZip=False, isQbit=False):
     mesg = update.message.text.split('\n')
     message_args = mesg[0].split(' ')
     name_args = mesg[0].split('|')
+    user_id = update.effective_user.id
+    bot_d = bot.get_me()
+    b_uname = bot_d.username
+    uname = f'<a href="tg://user?id={update.message.from_user.id}">{update.message.from_user.first_name}</a>'
+    uid= f"<a>{update.message.from_user.id}</a>"
     qbitsel = False
+    
     try:
         link = message_args[1]
         if link in ["qb", "qbs"]:
@@ -304,9 +325,25 @@ def _mirror(bot, update, isTar=False, extract=False, isZip=False, isQbit=False):
                 tg_downloader = TelegramDownloadHelper(listener)
                 ms = update.message
                 tg_downloader.add_download(ms, f'{DOWNLOAD_DIR}{listener.uid}/', name)
-                return
-            else:
-                link = file.get_file().file_path
+                editMessage(f"<b>{uname} has sent - </b>\n\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n<b>Filename:</b> <code>{download_dict[listener.uid].name()}</code>\n\n<b>Type:</b> <code>{file.mime_type}</code>\n<b>Size:</b> {download_dict[listener.uid].size()}\n\nUser ID : {uid} \n\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", tgs)
+                time.sleep(1)
+                sendMessage(f"<b>Hei {uname}</b>\n\n<b>Your Requested Telegram File Has Been Added To The Status</b>\n\n<b>Use /{BotCommands.StatusCommand} To Check Your Progress</b>\n", bot, update)
+                if len(Interval) == 0:
+                        Interval.append(setInterval(DOWNLOAD_STATUS_UPDATE_INTERVAL, update_all_messages))
+                 return
+             else:
+                 link = file.get_file().file_path
+                
+    else:
+        tag = None
+    if not bot_utils.is_url(link) and not bot_utils.is_magnet(link):
+        if isTar:
+            sendMessage(f"<b><i>No download source provided</i></b>\n\n<b>If you don't know how to use bots check others message</b>\n\n<b>Example :- /{BotCommands.TarMirrorCommand} <i>(Your Torrent Magnet, GDrive Link, DDL Or Mega.nz Links)</i></b>\n<b><i>For Torrent And Telegram Files , Reply to the File with</i></b> /{BotCommands.TarMirrorCommand}", bot, update)
+        elif extract:
+            sendMessage(f"<b><i>No download source provided</i></b>\n\n<b>If you don't know how to use bots check others message</b>\n\n<b>Example :- /{BotCommands.UnzipMirrorCommand} <i>(Your Torrent Magnet, GDrive Link, DDL Or Mega.nz Links)</i></b>\n<b><i>For Torrent And Telegram Files , Reply to the File with</i></b> /{BotCommands.UnzipMirrorCommand}", bot, update)
+        else:
+            sendMessage(f"<b><i>No download source provided</i></b>\n\n<b>If you don't know how to use bots check others message</b>\n\n<b>Example :- /{BotCommands.MirrorCommand} <i>(Your Torrent Magnet, DDL Or Mega.nz Links)</i></b>\n<b><i>For Torrent And Telegram Files , Reply to the File with</i></b> /{BotCommands.MirrorCommand}", bot, update)
+        return
 
     if not bot_utils.is_url(link) and not bot_utils.is_magnet(link):
         sendMessage('No download source provided', bot, update)
@@ -322,6 +359,15 @@ def _mirror(bot, update, isTar=False, extract=False, isZip=False, isQbit=False):
             if "Youtube" in str(e):
                 sendMessage(f"{e}", bot, update)
                 return
+            if "Index" in str(e):
+            sendMessage(f"{e}", bot, update)
+            return
+        if "Yet" in str(e):
+            sendMessage(f"{e}", bot, update)
+            return
+        if "Uptobox" in str(e):
+            sendMessage(f"{e}", bot, update)
+            return
 
     listener = MirrorListener(bot, update, pswd, isTar, extract, isZip, isQbit)
 
@@ -345,7 +391,17 @@ def _mirror(bot, update, isTar=False, extract=False, isZip=False, isQbit=False):
         download_status = DownloadStatus(drive, size, listener, gid)
         with download_dict_lock:
             download_dict[listener.uid] = download_status
-        sendStatusMessage(update, bot)
+        if len(Interval) == 0:
+            Interval.append(setInterval(DOWNLOAD_STATUS_UPDATE_INTERVAL, update_all_messages))
+        gmgs = sendMessage("<b>Processing Your G-Drive Link...</b>", bot, update)
+        time.sleep(2)
+        editMessage(f"{uname} has sent - \n\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n<code>{link}</code>\n\nUser ID : {uid}\n\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", gmgs)
+        time.sleep(1)
+      # sendMessage(f"<b>Hei {uname}</b>\n\n<b>Your Requested G-Drive Folder Has Been Added To The Status For Archiving</b>\n\n<b>Use /{BotCommands.StatusCommand} To Check Your Progress</b>\n", bot, update)
+        if not isTar:
+            sendMessage(f"<b>Hei {uname}</b>\n\n<b>Your Requested G-Drive File Has Been Added To The Status For Extracting</b>\n\n<b>Use /{BotCommands.StatusCommand} To Check Your Progress</b>\n", bot, update)
+        else:
+            sendMessage(f"<b>Hei {uname}</b>\n\n<b>Your Requested G-Drive Folder Has Been Added To The Status For Archiving</b>\n\n<b>Use /{BotCommands.StatusCommand} To Check Your Progress</b>\n", bot, update)
         drive.download(link)
 
     elif bot_utils.is_mega_link(link):
@@ -358,7 +414,37 @@ def _mirror(bot, update, isTar=False, extract=False, isZip=False, isQbit=False):
         else:
             mega_dl = MegaDownloadHelper()
             mega_dl.add_download(link, f'{DOWNLOAD_DIR}{listener.uid}/', listener)
+            editMessage(f"{uname} has sent - \n\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n<code>{link}</code>\n\nUser ID : {uid}\n\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", mgs)
+            time.sleep(1)
+            if link_type == "folder":
+                sendMessage(f"<b>Hei {uname}</b>\n\n<b>Your Requested MEGA Folder Has Been Added To The Status</b>\n\n<b>Use /{BotCommands.StatusCommand} To Check Your Progress</b>\n", bot, update)
+            else:
+                sendMessage(f"<b>Hei {uname}</b>\n\n<b>Your Requested MEGA File Has Been Added To The Status</b>\n\n<b>Use /{BotCommands.StatusCommand} To Check Your Progress</b>\n", bot, update)
 
+    else:
+        bot_start = f"http://t.me/{b_uname}?start=start"
+        mssg = sendMessage("<b>Processing Your URI...</b>", bot, update)
+        time.sleep(2)
+        ariaDlManager.add_download(link, f'{DOWNLOAD_DIR}/{listener.uid}/', listener, name)
+        if reply_to is not None:
+            editMessage(f"{uname} has sent - \n\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n<b>Filename:</b> <code>{file.file_name}</code>\n\n<b>Type:</b> <code>{file.mime_type}</code>\n<b>Size:</b> {get_readable_file_size(file.file_size)}\n\nUser ID : {uid}\n\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", mssg)
+            time.sleep(1)         
+        else:
+            editMessage(f"{uname} has sent - \n\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n<code>{link}</code>\n\nUser ID : {uid}\n\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", mssg)
+            time.sleep(1)
+        if reply_to is not None:
+            sendMessage(f"<b>Hei {uname}</b>\n\n<b>Your Requested Torrent File Has Been Added To The Status</b>\n\n<b>Use /{BotCommands.StatusCommand} To Check Your Progress</b>\n", bot, update)
+        elif link.startswith("magnet"):
+            sendMessage(f"<b>Hei {uname}</b>\n\n<b>Your Requested Magnet Link Has Been Added To The Status</b>\n\n<b>Use /{BotCommands.StatusCommand} To Check Your Progress</b>\n", bot, update)
+        elif link.endswith(".torrent"):
+            sendMessage(f"<b>Hei {uname}</b>\n\n<b>Your Requested Torrent Link Has Been Added To The Status</b>\n\n<b>Use /{BotCommands.StatusCommand} To Check Your Progress</b>\n", bot, update)
+        elif '0:/' in link or '1:/' in link or '2:/' in link or '3:/' in link or '4:/' in link or '5:/' in link or '6:/' in link or "workers.dev" in link:
+            sendMessage(f"<b>Hei {uname}</b>\n\n<b>Your Requested Index Link Has Been Added To The Status</b>\n\n<b>Use /{BotCommands.StatusCommand} To Check Your Progress</b>\n", bot, update)
+        else:
+            sendMessage(f"<b>Hei {uname}</b>\n\n<b>Your Requested DDL Has Been Added To The Status</b>\n\n<b>Use /{BotCommands.StatusCommand} To Check Your Progress</b>\n", bot, update)
+    if len(Interval) == 0:
+        Interval.append(setInterval(DOWNLOAD_STATUS_UPDATE_INTERVAL, update_all_messages)) 
+     
     elif isQbit and (bot_utils.is_magnet(link) or os.path.exists(link)):
         qbit = qbittorrent()
         qbit.add_torrent(link, f'{DOWNLOAD_DIR}{listener.uid}/', listener, qbitsel)
