@@ -18,6 +18,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 from tenacity import *
+from random import randrange
 
 from telegram import InlineKeyboardMarkup
 from bot.helper.telegram_helper import button_build
@@ -34,7 +35,7 @@ logging.getLogger('googleapiclient.discovery').setLevel(logging.ERROR)
 if USE_SERVICE_ACCOUNTS:
     SERVICE_ACCOUNT_INDEX = randrange(len(os.listdir("accounts")))
 
-TELEGRAPHLIMIT = 80
+TELEGRAPHLIMIT = 95
 
 
 class GoogleDriveHelper:
