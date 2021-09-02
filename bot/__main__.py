@@ -33,7 +33,9 @@ now=datetime.now(pytz.timezone('Asia/Kolkata'))
 
 
 def stats(update, context):
+    global main
     currentTime = get_readable_time(time.time() - botStartTime)
+    current = now.strftime('%m/%d %I:%M:%S %p')
     total, used, free = shutil.disk_usage('.')
     total = get_readable_file_size(total)
     used = get_readable_file_size(used)
@@ -43,47 +45,62 @@ def stats(update, context):
     cpuUsage = psutil.cpu_percent(interval=0.5)
     memory = psutil.virtual_memory().percent
     disk = psutil.disk_usage('/').percent
-    stats = f'<b>Bot Uptime:</b> <code>{currentTime}</code>\n' \
-            f'<b>Total Disk Space:</b> <code>{total}</code>\n' \
-            f'<b>Used:</b> <code>{used}</code> ' \
-            f'<b>Free:</b> <code>{free}</code>\n\n' \
-            f'<b>Upload:</b> <code>{sent}</code>\n' \
-            f'<b>Download:</b> <code>{recv}</code>\n\n' \
-            f'<b>CPU:</b> <code>{cpuUsage}%</code> ' \
-            f'<b>RAM:</b> <code>{memory}%</code> ' \
-            f'<b>DISK:</b> <code>{disk}%</code>'
-    sendMessage(stats, context.bot, update)
+    stats = f"〣 {CHAT_NAME} 〣\n\n" \
+            f'Rᴜɴɴɪɴɢ Sɪɴᴄᴇ : {currentTime}\n' \
+            f'Sᴛᴀʀᴛᴇᴅ Aᴛ : {current}\n\n' \
+            f'<b>DISK INFO</b>\n' \
+            f'<b><i>Total</i></b>: {total}\n' \
+            f'<b><i>Used</i></b>: {used} ~ ' \
+            f'<b><i>Free</i></b>: {free}\n\n' \
+            f'<b>DATA USAGE</b>\n' \
+            f'<b><i>UL</i></b>: {sent} ~ ' \
+            f'<b><i>DL</i></b>: {recv}\n\n' \
+            f'<b>SERVER STATS</b>\n' \
+            f'<b><i>CPU</i></b>: {cpuUsage}%\n' \
+            f'<b><i>RAM</i></b>: {memory}%\n' \
+            f'<b><i>DISK</i></b>: {disk}%\n'
+    keyboard = [[InlineKeyboardButton("CLOSE", callback_data="stats_close")]]
+    main = sendMarkup(stats, context.bot, update, reply_markup=InlineKeyboardMarkup(keyboard))
+    
+
+def call_back_data(update, context):
+    global main
+    query = update.callback_query
+    query.answer()
+    main.delete()
+    main = None
 
 
-def start(update, context):
-    buttons = button_build.ButtonMaker()
-    buttons.buildbutton("Repo", "https://github.com/SlamDevs/slam-mirrorbot")
-    buttons.buildbutton("Channel", "https://t.me/SlamMirrorUpdates")
-    reply_markup = InlineKeyboardMarkup(buttons.build_menu(2))
+def start(update:Update, context:CallbackContext) -> None:
+    LOGGER.info('UID: {} - UN: {} - MSG: {}'.format(update.message.chat.id,update.message.chat.username,update.message.text))
+    uptime = get_readable_time((time.time() - botStartTime))
     if CustomFilters.authorized_user(update) or CustomFilters.authorized_chat(update):
-        start_string = f'''
-This bot can mirror all your links to Google Drive!
-Type /{BotCommands.HelpCommand} to get a list of available commands
-'''
-        sendMarkup(start_string, context.bot, update, reply_markup)
-    else:
-        sendMarkup(
-            'Oops! not a Authorized user.\nPlease deploy your own <b>slam-mirrorbot</b>.',
-            context.bot,
-            update,
-            reply_markup,
-        )
+        if update.message.chat.type == "private" :
+            reply_message = sendMessage(f"<b>Hei {update.message.chat.first_name}</b>,\n\nWelcome To One Of A {CHAT_NAME} Bot", context.bot, update)
+            threading.Thread(target=auto_delete_message, args=(bot, update.message, reply_message)).start()
+        else :
+            sendMessage(f"<b>I'm Awake Already!</b>\n<b>Haven't Slept Since:</b> <code>{uptime}</code>", context.bot, update)
+    else :
+        uname = f'<a href="tg://user?id={update.message.from_user.id}">{update.message.from_user.first_name}</a>'
+        sendMessage(f"<b>Hei {uname},</b>\n\n<b>If You Want To Use Me</b>\n\n<b>You Have To Join @GautamS_Mirror</b>\n\n<b><i>NOTE : All The Uploaded Links Will Be Sent Here In Your Private Chat From Now</i></b>", context.bot, update)
+
 
 
 def restart(update, context):
-    restart_message = sendMessage("Restarting, Please wait!", context.bot, update)
+    restart_message = sendMessage(f"Restarting The Bot {BOT_NO}", context.bot, update)
+    LOGGER.info(f'Restarting The Bot...')
     # Save restart message object in order to reply to it after restarting
     with open(".restartmsg", "w") as f:
         f.truncate(0)
         f.write(f"{restart_message.chat.id}\n{restart_message.message_id}\n")
     fs_utils.clean_all()
-    alive.terminate()
     os.execl(executable, executable, "-m", "bot")
+    
+@app.on_message(filters.command([BotCommands.RebootCommand]) & filters.user(OWNER_ID))
+@check_heroku
+async def gib_restart(client, message, hap):
+    msg_ = await message.reply_text("Restarting Dynos")
+    hap.restart()
 
 
 def ping(update, context):
@@ -104,8 +121,6 @@ def bot_help(update, context):
 /{BotCommands.MirrorCommand} [download_url][magnet_link]: Start mirroring the link to Google Drive. Use /{BotCommands.MirrorCommand} qb to mirror with qBittorrent, and use /{BotCommands.MirrorCommand} qbs to select files before downloading
 
 /{BotCommands.TarMirrorCommand} [download_url][magnet_link]: Start mirroring and upload the archived (.tar) version of the download
-
-/{BotCommands.ZipMirrorCommand} [download_url][magnet_link]: Start mirroring and upload the archived (.zip) version of the download
 
 /{BotCommands.UnzipMirrorCommand} [download_url][magnet_link]: Starts mirroring and if downloaded file is any archive, extracts it to Google Drive
 
@@ -145,11 +160,21 @@ def bot_help(update, context):
 
 /{BotCommands.LogCommand}: Get a log file of the bot. Handy for getting crash reports
 
+/{BotCommands.ConfigMenuCommand}: Get Info Menu about bot config (Owner Only)
+
+/{BotCommands.UpdateCommand}: Update Bot from Upstream Repo (Owner Only)
+
+/{BotCommands.UsageCommand}: To see Heroku Dyno Stats (Owner & Sudo only)
+
 /{BotCommands.SpeedCommand}: Check Internet Speed of the Host
+
+/{BotCommands.MediaInfoCommand}: Get detailed info about replied media (Only for Telegram file)
 
 /{BotCommands.ShellCommand}: Run commands in Shell (Terminal)
 
-/{BotCommands.ExecHelpCommand}: Get help for Executor module (Only Owner)
+/{BotCommands.ExecHelpCommand}: Get help for Executor module
+
+/{BotCommands.TsHelpCommand}: Get help for Torrent search module
 '''
 
     help_string = f'''
@@ -158,8 +183,6 @@ def bot_help(update, context):
 /{BotCommands.MirrorCommand} [download_url][magnet_link]: Start mirroring the link to Google Drive. Use /{BotCommands.MirrorCommand} qb to mirror with qBittorrent, and use /{BotCommands.MirrorCommand} qbs to select files before downloading
 
 /{BotCommands.TarMirrorCommand} [download_url][magnet_link]: Start mirroring and upload the archived (.tar) version of the download
-
-/{BotCommands.ZipMirrorCommand} [download_url][magnet_link]: Start mirroring and upload the archived (.zip) version of the download
 
 /{BotCommands.UnzipMirrorCommand} [download_url][magnet_link]: Starts mirroring and if downloaded file is any archive, extracts it to Google Drive
 
@@ -180,6 +203,12 @@ def bot_help(update, context):
 /{BotCommands.StatsCommand}: Show Stats of the machine the bot is hosted on
 
 /{BotCommands.PingCommand}: Check how long it takes to Ping the Bot
+
+/{BotCommands.SpeedCommand}: Check Internet Speed of the Host
+
+/{BotCommands.MediaInfoCommand}: Get detailed info about replied media (Only for Telegram file)
+
+/{BotCommands.TsHelpCommand}: Get help for Torrent search module
 '''
 
     if CustomFilters.sudo_user(update) or CustomFilters.owner_filter(update):
@@ -222,7 +251,18 @@ def main():
             chat_id, msg_id = map(int, f)
         bot.edit_message_text("Restarted successfully!", chat_id, msg_id)
         os.remove(".restartmsg")
-    bot.set_my_commands(botcmds)
+    if LOG_GROUP is not None and isinstance(LOG_GROUP, str):
+
+        try:
+            now=datetime.now(pytz.timezone('Asia/Kolkata'))
+            current = now.strftime('%Y/%m/%d %I:%M:%P')
+            dispatcher.bot.sendMessage(f"{LOG_GROUP}", f"Bot {BOT_NO} Successfully Restarted\n\nTime : {current}")
+        except Unauthorized:
+            LOGGER.warning(
+                "Bot isnt able to send message to support_chat, go and check!"
+            )
+        except BadRequest as e:
+            LOGGER.warning(e.message)
 
     start_handler = CommandHandler(BotCommands.StartCommand, start, run_async=True)
     ping_handler = CommandHandler(BotCommands.PingCommand, ping,
@@ -234,6 +274,9 @@ def main():
     stats_handler = CommandHandler(BotCommands.StatsCommand,
                                    stats, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
     log_handler = CommandHandler(BotCommands.LogCommand, log, filters=CustomFilters.owner_filter | CustomFilters.sudo_user, run_async=True)
+    del_data_msg = CallbackQueryHandler(call_back_data, pattern="stats_close")
+    
+    dispatcher.add_handler(del_data_msg)
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(ping_handler)
     dispatcher.add_handler(restart_handler)
