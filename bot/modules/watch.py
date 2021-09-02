@@ -22,14 +22,14 @@ def _watch(bot: Bot, update, isTar=False):
         link = message_args[1]
     except IndexError:
         if not isTar:
-            msg = f"/{BotCommands.WatchCommand} [youtube-dl supported link] [quality] |[CustomName] to mirror with youtube-dl.\n\n"
+            msg = f"/{BotCommands.WatchCommand} [yt-dlp supported link] [quality] |[CustomName] to mirror with yt-dlp.\n\n"
             msg += "<b>Note: Quality and custom name are optional</b>\n\nExample of quality: audio, 144, 240, 360, 480, 720, 1080, 2160."
             msg += "\n\nIf you want to use custom filename, enter it after |"
             msg += f"\n\nExample:\n<code>/{BotCommands.WatchCommand} https://youtu.be/Pk_TthHfLeE 720 |Mirror</code>\n\n"
             msg += "This file will be downloaded in 720p quality and it's name will be <b>Mirror</b>"
             sendMessage(msg, bot, update)
         else:
-            msg = f"/{BotCommands.TarWatchCommand} [youtube-dl supported link] [quality] |[CustomName] to mirror with youtube-dl.\n\n"
+            msg = f"/{BotCommands.TarWatchCommand} [yt-dlp supported link] [quality] |[CustomName] to mirror with yt-dlp.\n\n"
             msg += "<b>Note: Quality and custom name are optional</b>\n\nExample of quality: audio, 144, 240, 360, 480, 720, 1080, 2160."
             msg += "\n\nIf you want to use custom filename, enter it after |"
             msg += f"\n\nExample:\n<code>/{BotCommands.TarWatchCommand} https://youtu.be/Pk_TthHfLeE 720 |Mirror</code>\n\n"
