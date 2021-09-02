@@ -370,6 +370,44 @@ try:
 except KeyError:
     ACCOUNTS_ZIP_URL = None
 
+DRIVE_NAME = []
+DRIVE_ID = []
+INDEX_LINK = []
+
+if os.path.exists('drive_folder'):
+    with open('drive_folder', 'r+') as f:
+        lines = f.readlines()
+        for line in lines:
+            temp = line.strip().split()
+            DRIVE_NAME.append(temp[0].replace("_", " "))
+            DRIVE_ID.append(temp[1])
+            try:
+                INDEX_LINK.append(temp[2])
+            except IndexError as e:
+                INDEX_LINK.append(None)
+
+if DRIVE_ID :
+    pass
+else :
+    LOGGER.error("The README.md file there to be read! Exiting now!")
+    exit(1)
+
+
+
+try:
+    FINISHED_PROGRESS_STR = getConfig('FINISHED_PROGRESS_STR')
+    if len(FINISHED_PROGRESS_STR) == 0:
+        FINISHED_PROGRESS_STR = '▓'
+except KeyError:
+    FINISHED_PROGRESS_STR = '▓'
+try:
+    UNFINISHED_PROGRESS_STR = getConfig('UNFINISHED_PROGRESS_STR')
+    if len(UNFINISHED_PROGRESS_STR) == 0:
+        UNFINISHED_PROGRESS_STR = '░'
+except KeyError:
+    UNFINISHED_PROGRESS_STR = '░'
+
+
 updater = tg.Updater(token=BOT_TOKEN)
 bot = updater.bot
 dispatcher = updater.dispatcher
