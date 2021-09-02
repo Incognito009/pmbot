@@ -42,17 +42,9 @@ class _BotCommands:
 
         self.DeleteCommand = f'kill{BOT_NO}'
 
-        self.UsageCommand = f'usage{BOT_NO}'
-
-        self.MediaInfoCommand = f'mediainfo{BOT_NO}'
 
         self.ShellCommand = 'shell'
         self.ExecHelpCommand = 'exechelp'
-
-        self.UpdateCommand = 'update'
-        self.ConfigMenuCommand = 'config'
-        
-        self.TsHelpCommand = 'tshelp'
         
 
 BotCommands = _BotCommands()
