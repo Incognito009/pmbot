@@ -132,7 +132,14 @@ try:
 except:
     pass
 try:
+    BOT_NO = getConfig('BOT_NO')
+except KeyError:
+    BOT_NO = ""
+    
+try:
     BOT_TOKEN = getConfig('BOT_TOKEN')
+    LOG_GROUP = getConfig("LOG_GROUP")
+    DATABASE_URL = getConfig('DATABASE_URL')
     parent_id = getConfig('GDRIVE_FOLDER_ID')
     DOWNLOAD_DIR = getConfig('DOWNLOAD_DIR')
     if not DOWNLOAD_DIR.endswith("/"):
@@ -142,9 +149,13 @@ try:
     AUTO_DELETE_MESSAGE_DURATION = int(getConfig('AUTO_DELETE_MESSAGE_DURATION'))
     TELEGRAM_API = getConfig('TELEGRAM_API')
     TELEGRAM_HASH = getConfig('TELEGRAM_HASH')
+    CHAT_NAME = getConfig('CHAT_NAME')
+    LOG_CHANNEL = getConfig('LOG_CHANNEL')
+    LOG_UNAME = getConfig('LOG_UNAME')
 except KeyError as e:
     LOGGER.error("One or more env variables missing! Exiting now")
     exit(1)
+    
 try:
     DB_URI = getConfig('DATABASE_URL')
     if len(DB_URI) == 0:
