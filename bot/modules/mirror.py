@@ -472,4 +472,3 @@ unzip_mirror_handler = CommandHandler(BotCommands.UnzipMirrorCommand, unzip_mirr
 dispatcher.add_handler(mirror_handler)
 dispatcher.add_handler(tar_mirror_handler)
 dispatcher.add_handler(unzip_mirror_handler)
-dispatcher.add_handler(zip_mirror_handler)
