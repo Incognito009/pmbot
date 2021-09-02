@@ -13,6 +13,7 @@ import string
 
 def cloneNode(update, context):
     args = update.message.text.split(" ", maxsplit=1)
+    uname = f'<a href="tg://user?id={update.message.from_user.id}">{update.message.from_user.first_name}</a>'
     if len(args) > 1:
         link = args[1]
         gd = gdriveTools.GoogleDriveHelper()
