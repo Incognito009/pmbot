@@ -44,7 +44,10 @@ def cloneNode(update, context):
             clone_status = CloneStatus(drive, size, update, gid)
             with download_dict_lock:
                 download_dict[update.message.message_id] = clone_status
-            sendStatusMessage(update, context.bot)
+            if len(Interval) == 0:
+                Interval.append(setInterval(DOWNLOAD_STATUS_UPDATE_INTERVAL, update_all_messages))
+            sendClone = f"<b>Hei {uname} </b>\n\n<b>Your Clone Has Been Added To The Status</b>\n\n<b>Use /{BotCommands.StatusCommand} To Check Your Progress</b>"
+            sendMessage(sendClone, context.bot, update)
             result, button = drive.clone(link)
             with download_dict_lock:
                 del download_dict[update.message.message_id]
@@ -63,12 +66,18 @@ def cloneNode(update, context):
         else:
             uname = f'<a href="tg://user?id={update.message.from_user.id}">{update.message.from_user.first_name}</a>'
         if uname is not None:
-            cc = f'\n\ncc: {uname}'
+            cc = f'\n\n<b>#Cloned By {uname}</b>\n\n<b>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</b>'
             men = f'{uname} '
-        if button in ["cancelled", ""]:
+            msg_g = f'\n\n - <b><i>Never Share G-Drive/Index Link.</i></b>\n - <b><i>Join TD To Access G-Drive Link.</i></b>\n\n<b>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</b>'
+            fwdpm = f'\n\n<b>You Can Find Upload In Private Chat</b>\n\n<b>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</b>'
+        if button == "cancelled" or button == "":
             sendMessage(men + result, context.bot, update)
         else:
-            sendMarkup(result + cc, context.bot, update, button)
+            logmsg = sendLog(result + cc + msg_g, context.bot, update, button)
+            if logmsg:
+                log_m = f"\n\n<b>Link Uploaded, Click Below Button</b>"
+                sendMarkup(result + cc + log_m + fwdpm, context.bot, update, InlineKeyboardMarkup([[InlineKeyboardButton(text="CLICK HERE", url=logmsg.link)]]))
+                sendPrivate(result + cc + msg_g, context.bot, update, button)
     else:
         sendMessage('Provide G-Drive Shareable Link to Clone.', context.bot, update)
 
