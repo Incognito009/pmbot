@@ -355,14 +355,14 @@ def _mirror(bot, update, isTar=False, extract=False, isZip=False, isQbit=False):
                 sendMessage(f"{e}", bot, update)
                 return
             if "Index" in str(e):
-            sendMessage(f"{e}", bot, update)
-            return
-        if "Yet" in str(e):
-            sendMessage(f"{e}", bot, update)
-            return
-        if "Uptobox" in str(e):
-            sendMessage(f"{e}", bot, update)
-            return
+                sendMessage(f"{e}", bot, update)
+                return
+            if "Yet" in str(e):
+                sendMessage(f"{e}", bot, update)
+                return
+            if "Uptobox" in str(e):
+                sendMessage(f"{e}", bot, update)
+                return
 
     listener = MirrorListener(bot, update, pswd, isTar, extract, isZip, isQbit)
 
