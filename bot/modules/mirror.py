@@ -329,8 +329,7 @@ def _mirror(bot, update, isTar=False, extract=False, isZip=False, isQbit=False):
                 time.sleep(1)
                 sendMessage(f"<b>Hei {uname}</b>\n\n<b>Your Requested Telegram File Has Been Added To The Status</b>\n\n<b>Use /{BotCommands.StatusCommand} To Check Your Progress</b>\n", bot, update)
                 if len(Interval) == 0:
-                        Interval.append(setInterval(DOWNLOAD_STATUS_UPDATE_INTERVAL, update_all_messages))
-                 return
+                        Interval.append(setInterval(DOWNLOAD_STATUS_UPDATE_INTERVAL, update_all_messages))               
              else:
                  link = file.get_file().file_path
                 
