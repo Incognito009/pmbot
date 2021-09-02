@@ -220,8 +220,7 @@ def bot_help(update, context):
 botcmds = [
         (f'{BotCommands.HelpCommand}','Get Detailed Help'),
         (f'{BotCommands.MirrorCommand}', 'Start Mirroring'),
-        (f'{BotCommands.TarMirrorCommand}','Start mirroring and upload as .tar'),
-        (f'{BotCommands.ZipMirrorCommand}','Start mirroring and upload as .zip'),
+        (f'{BotCommands.TarMirrorCommand}','Start mirroring and upload as .tar'),       
         (f'{BotCommands.UnzipMirrorCommand}','Extract files'),
         (f'{BotCommands.CloneCommand}','Copy file/folder to Drive'),
         (f'{BotCommands.CountCommand}','Count file/folder of Drive link'),
