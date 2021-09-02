@@ -30,17 +30,25 @@ from bot.helper.ext_utils.exceptions import DirectDownloadLinkException
 def direct_link_generator(link: str):
     """ direct links generator """
     if not link:
-        raise DirectDownloadLinkException("No links found!")
-    elif 'youtube.com' in link or 'youtu.be' in link:
-        raise DirectDownloadLinkException(f"Use /{BotCommands.WatchCommand} to mirror Youtube link\nUse /{BotCommands.TarWatchCommand} to make tar of Youtube playlist")
+        raise DirectDownloadLinkException("`No links found!`")
+    elif 'youtube.com' in link or 'youtu.be' in link or 'sonyliv.' in link or 'mxplayer.' in link or 'hotstar.' in link or 'zee5.' in link or'voot.' in link:
+        raise DirectDownloadLinkException(f"YTDL Link Detected\nUse YTDL Bots")
+    elif 'dood.to' in link or 'yuudrive.' in link or 'gplinks.' in link or 'gp.links' in link or't.me' in link or 'gdtot.' in link or 'sharer.' in link or 'pdisk.' in link or 'Pdisk.' in link or 'driveapp.' in  link or 'nitroflare.' in link:
+        raise DirectDownloadLinkException(f"These Links Not Supported Yet")
+    elif '0:/' in link and link.endswith("/") or '1:/' in link and link.endswith("/") or '2:/' in link and link.endswith("/") or '3:/' in link and link.endswith("/") or '4:/' in link and link.endswith("/") or '5:/' in link and link.endswith("/") or '6:/' in link and link.endswith("/"):
+        raise DirectDownloadLinkException(f"Index Folder Not Supported")
+    elif '?a=view' in link:
+        return link.replace("?a=view", "")
     elif 'zippyshare.com' in link:
         return zippy_share(link)
     elif 'yadi.sk' in link:
         return yandex_disk(link)
+    elif 'cloud.mail.ru' in link:
+        return cm_ru(link)
     elif 'mediafire.com' in link:
         return mediafire(link)
     elif 'uptobox.com' in link:
-        return uptobox(link)
+        raise DirectDownloadLinkException(f"Uptobox Is Not Supported\nBecause We Don't Have Uptobox Premium Account")
     elif 'osdn.net' in link:
         return osdn(link)
     elif 'github.com' in link:
@@ -48,7 +56,7 @@ def direct_link_generator(link: str):
     elif 'hxfile.co' in link:
         return hxfile(link)
     elif 'anonfiles.com' in link:
-        return anonfiles(link)
+        return anon(link)
     elif 'letsupload.io' in link:
         return letsupload(link)
     elif 'fembed.net' in link:
@@ -89,8 +97,6 @@ def direct_link_generator(link: str):
         return racaty(link)
     elif '1fichier.com' in link:
         return fichier(link)
-    elif 'solidfiles.com' in link:
-        return solidfiles(link)
     else:
         raise DirectDownloadLinkException(f'No Direct link function found for {link}')
 
@@ -134,6 +140,24 @@ def yandex_disk(url: str) -> str:
         return requests.get(api.format(link)).json()['href']
     except KeyError:
         raise DirectDownloadLinkException("ERROR: File not found/Download limit reached\n")
+        
+def cm_ru(url: str) -> str:
+    """ cloud.mail.ru direct links generator
+    Using https://github.com/JrMasterModelBuilder/cmrudl.py """
+    reply = ''
+    try:
+        link = re.findall(r'\bhttps?://.*cloud\.mail\.ru\S+', url)[0]
+    except IndexError:
+        raise DirectDownloadLinkException("No cloud.mail.ru links found\n")
+    command = f'vendor/cmrudl.py/cmrudl -s {link}'
+    result = popen(command).read()
+    result = result.splitlines()[-1]
+    try:
+        data = json.loads(result)
+    except json.decoder.JSONDecodeError:
+        raise DirectDownloadLinkException("Error: Can't extract the link\n")
+    dl_url = data['download']
+    return dl_url        
 
 
 def uptobox(url: str) -> str:
