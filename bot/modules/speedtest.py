@@ -1,9 +1,10 @@
 from speedtest import Speedtest
 from bot.helper.telegram_helper.filters import CustomFilters
-from bot import dispatcher
+from bot import dispatcher, AUTHORIZED_CHATS
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.message_utils import sendMessage, editMessage
-from telegram.ext import CommandHandler
+from telegram import ParseMode
+from telegram.ext import Filters, CommandHandler
 
 
 def speedtest(update, context):
@@ -14,6 +15,7 @@ def speedtest(update, context):
     test.upload()
     test.results.share()
     result = test.results.dict()
+    path = (result['share'])
     string_speed = f'''
 <b>Server</b>
 <b>Name:</b> <code>{result['server']['name']}</code>
@@ -27,7 +29,11 @@ def speedtest(update, context):
 <b>Ping:</b> <code>{result['ping']} ms</code>
 <b>ISP Rating:</b> <code>{result['client']['isprating']}</code>
 '''
-    editMessage(string_speed, speed)
+    ed_msg.delete()
+    try:
+        update.effective_message.reply_photo(path, string_speed, parse_mode=ParseMode.HTML)
+    except:
+        update.effective_message.reply_text(string_speed, parse_mode=ParseMode.HTML)
 
 
 def speed_convert(size):
