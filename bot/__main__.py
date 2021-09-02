@@ -18,7 +18,7 @@ from telegram.ext import Filters, InlineQueryHandler, MessageHandler, CommandHan
 from telegram.utils.helpers import escape_markdown
 from telegram.ext import CommandHandler
 from wserver import start_server_async
-from bot import bot, dispatcher, updater, botStartTime, LOG_GROUP, BOT_NO, IGNORE_PENDING_REQUESTS, CHAT_NAME IS_VPS, app, SERVER_PORT, OWNER_ID
+from bot import bot, dispatcher, updater, botStartTime, LOG_GROUP, BOT_NO, IGNORE_PENDING_REQUESTS, CHAT_NAME, IS_VPS, app, SERVER_PORT, OWNER_ID
 from bot.helper.ext_utils import fs_utils
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.message_utils import *
