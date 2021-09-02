@@ -93,6 +93,7 @@ def get_client() -> qba.TorrentsAPIMixIn:
 
 
 DOWNLOAD_DIR = None
+BOT_NO = ""
 BOT_TOKEN = None
 
 download_dict_lock = threading.Lock()
