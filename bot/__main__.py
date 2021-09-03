@@ -166,8 +166,6 @@ def bot_help(update, context):
 
 /{BotCommands.SpeedCommand}: Check Internet Speed of the Host
 
-/{BotCommands.MediaInfoCommand}: Get detailed info about replied media (Only for Telegram file)
-
 /{BotCommands.ShellCommand}: Run commands in Shell (Terminal)
 
 /{BotCommands.ExecHelpCommand}: Get help for Executor module
@@ -201,8 +199,6 @@ def bot_help(update, context):
 /{BotCommands.PingCommand}: Check how long it takes to Ping the Bot
 
 /{BotCommands.SpeedCommand}: Check Internet Speed of the Host
-
-/{BotCommands.MediaInfoCommand}: Get detailed info about replied media (Only for Telegram file)
 '''
 
     if CustomFilters.sudo_user(update) or CustomFilters.owner_filter(update):
