@@ -160,8 +160,6 @@ def bot_help(update, context):
 
 /{BotCommands.LogCommand}: Get a log file of the bot. Handy for getting crash reports
 
-/{BotCommands.ConfigMenuCommand}: Get Info Menu about bot config (Owner Only)
-
 /{BotCommands.UpdateCommand}: Update Bot from Upstream Repo (Owner Only)
 
 /{BotCommands.UsageCommand}: To see Heroku Dyno Stats (Owner & Sudo only)
@@ -173,8 +171,6 @@ def bot_help(update, context):
 /{BotCommands.ShellCommand}: Run commands in Shell (Terminal)
 
 /{BotCommands.ExecHelpCommand}: Get help for Executor module
-
-/{BotCommands.TsHelpCommand}: Get help for Torrent search module
 '''
 
     help_string = f'''
@@ -207,8 +203,6 @@ def bot_help(update, context):
 /{BotCommands.SpeedCommand}: Check Internet Speed of the Host
 
 /{BotCommands.MediaInfoCommand}: Get detailed info about replied media (Only for Telegram file)
-
-/{BotCommands.TsHelpCommand}: Get help for Torrent search module
 '''
 
     if CustomFilters.sudo_user(update) or CustomFilters.owner_filter(update):
