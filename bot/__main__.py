@@ -160,8 +160,6 @@ def bot_help(update, context):
 
 /{BotCommands.LogCommand}: Get a log file of the bot. Handy for getting crash reports
 
-/{BotCommands.UpdateCommand}: Update Bot from Upstream Repo (Owner Only)
-
 /{BotCommands.UsageCommand}: To see Heroku Dyno Stats (Owner & Sudo only)
 
 /{BotCommands.SpeedCommand}: Check Internet Speed of the Host
