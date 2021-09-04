@@ -290,6 +290,12 @@ try:
 except KeyError:
     STOP_DUPLICATE = False
 try:
+    GD_BUTTON = getConfig('GD_BUTTON')
+    if len(GD_BUTTON) == 0:
+        GD_BUTTON = None
+except KeyError:
+    GD_BUTTON = '☁️ Google Drive ☁️'    
+try:
     VIEW_LINK = getConfig('VIEW_LINK')
     VIEW_LINK = VIEW_LINK.lower() == 'true'
 except KeyError:
