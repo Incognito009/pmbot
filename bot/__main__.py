@@ -5,6 +5,7 @@ import asyncio
 import importlib
 
 from pyrogram import idle, filters, types, emoji
+from pyrogram import idle
 from bot import app, alive
 from sys import executable
 from datetime import datetime
