@@ -9,6 +9,7 @@ from pyrogram import idle
 from bot import app, alive
 from sys import executable
 from datetime import datetime
+from quoters import Quote
 import pytz
 import time
 import threading
@@ -254,8 +255,7 @@ def main():
     if LOG_GROUP is not None and isinstance(LOG_GROUP, str):
 
         try:
-            current = now.strftime('%Y/%m/%d %I:%M:%P')
-            dispatcher.bot.sendMessage(f"{LOG_GROUP}", f"Bot {BOT_NO} Successfully Restarted\n\nTime : {current}")
+            dispatcher.bot.sendMessage(f"{LOG_GROUP}", f"♻️ 𝐁𝐎𝐓 𝐆𝐎𝐓 𝐑𝐄𝐒𝐓𝐀𝐑𝐓𝐄𝐃 ♻️\n\n𝙿𝙻𝙴𝙰𝚂𝙴 𝚁𝙴-𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳 𝙰𝙶𝙰𝙸𝙽\n\n𝐐𝐮𝐨𝐭𝐞\n{quo_te}\n\n#Restarted")
         except Unauthorized:
             LOGGER.warning(
                 "Bot isnt able to send message to support_chat, go and check!"
