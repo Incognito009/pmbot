@@ -72,18 +72,29 @@ def call_back_data(update, context):
     main = None
 
 
-def start(update:Update, context:CallbackContext) -> None:
-    LOGGER.info('UID: {} - UN: {} - MSG: {}'.format(update.message.chat.id,update.message.chat.username,update.message.text))
+def start(update, context):
+    buttons = button_build.ButtonMaker()
+    buttons.buildbutton("Repo", "https://github.com/SlamDevs/slam-mirrorbot")
+    buttons.buildbutton("Channel", "https://t.me/SlamMirrorUpdates")
+    reply_markup = InlineKeyboardMarkup(buttons.build_menu(2))
+    if CustomFilters.authorized_user(update) or CustomFilters.authorized_chat(update):
+        start_string = f'''
+This bot can mirror all your links to Google Drive!
+Type /{BotCommands.HelpCommand} to get a list of available commands
+'''
+    buttons = button_build.ButtonMaker()
+    buttons.buildbutton("Channel", f"{CHANNEL_LINK}")
+    buttons.buildbutton("Support Group", f"{SUPPORT_LINK}")
+    reply_markup = InlineKeyboardMarkup(buttons.build_menu(2))
+    LOGGER.info('UID: {} - UN: {} - MSG: {}'.format(update.message.chat.id, update.message.chat.username, update.message.text))
     uptime = get_readable_time((time.time() - botStartTime))
     if CustomFilters.authorized_user(update) or CustomFilters.authorized_chat(update):
         if update.message.chat.type == "private" :
-            reply_message = sendMessage(f"<b>Hei {update.message.chat.first_name}</b>,\n\nWelcome To One Of A {CHAT_NAME} Bot", context.bot, update)
-            threading.Thread(target=auto_delete_message, args=(bot, update.message, reply_message)).start()
+            sendMessage(f"Hey I'm Alive 🙂\nSince: <code>{uptime}</code>", context.bot, update)
         else :
-            sendMessage(f"<b>I'm Awake Already!</b>\n<b>Haven't Slept Since:</b> <code>{uptime}</code>", context.bot, update)
+            sendMarkup(start_string, context.bot, update, reply_markup)
     else :
-        uname = f'<a href="tg://user?id={update.message.from_user.id}">{update.message.from_user.first_name}</a>'
-        sendMessage(f"<b>Hei {uname},</b>\n\n<b>If You Want To Use Me</b>\n\n<b>You Have To Join @GautamS_Mirror</b>\n\n<b><i>NOTE : All The Uploaded Links Will Be Sent Here In Your Private Chat From Now</i></b>", context.bot, update)
+        sendMessage(f"Oops! not a Authorized user.", context.bot, update)
 
 
 
@@ -119,7 +130,11 @@ def bot_help(update, context):
     help_string_adm = f'''
 /{BotCommands.HelpCommand}: To get this message
 
-/{BotCommands.MirrorCommand} [download_url][magnet_link]: Start mirroring the link to Google Drive. Use /{BotCommands.MirrorCommand} qb to mirror with qBittorrent, and use /{BotCommands.MirrorCommand} qbs to select files before downloading
+/{BotCommands.MirrorCommand} [download_url][magnet_link]: Start mirroring the link to Google Drive.
+
+<code>/{BotCommands.MirrorCommand} qb</code> [download_url][magnet_link]: Start mirroring the link to Google Drive using qbittorrent
+
+<code>/{BotCommands.MirrorCommand} qbs</code> [download_url][magnet_link]: Start mirroring the link to Google Drive and Select file before downloading using qbittorrent
 
 /{BotCommands.TarMirrorCommand} [download_url][magnet_link]: Start mirroring and upload the archived (.tar) version of the download
 
@@ -171,7 +186,11 @@ def bot_help(update, context):
     help_string = f'''
 /{BotCommands.HelpCommand}: To get this message
 
-/{BotCommands.MirrorCommand} [download_url][magnet_link]: Start mirroring the link to Google Drive. Use /{BotCommands.MirrorCommand} qb to mirror with qBittorrent, and use /{BotCommands.MirrorCommand} qbs to select files before downloading
+/{BotCommands.MirrorCommand} [download_url][magnet_link]: Start mirroring the link to Google Drive.
+
+<code>/{BotCommands.MirrorCommand} qb</code> [download_url][magnet_link]: Start mirroring the link to Google Drive using qbittorrent
+
+<code>/{BotCommands.MirrorCommand} qbs</code> [download_url][magnet_link]: Start mirroring the link to Google Drive and Select file before downloading using qbittorrent
 
 /{BotCommands.TarMirrorCommand} [download_url][magnet_link]: Start mirroring and upload the archived (.tar) version of the download
 
@@ -210,8 +229,7 @@ botcmds = [
         (f'{BotCommands.TarMirrorCommand}','Start mirroring and upload as .tar'),       
         (f'{BotCommands.UnzipMirrorCommand}','Extract files'),
         (f'{BotCommands.CloneCommand}','Copy file/folder to Drive'),
-        (f'{BotCommands.CountCommand}','Count file/folder of Drive link'),
-        (f'{BotCommands.DeleteCommand}','Delete file from Drive'),
+        (f'{BotCommands.CountCommand}','Count file/folder of Drive link'),       
         (f'{BotCommands.WatchCommand}','Mirror yt-dlp support link'),
         (f'{BotCommands.TarWatchCommand}','Mirror Youtube playlist link as .tar'),
         (f'{BotCommands.CancelMirror}','Cancel a task'),
@@ -219,9 +237,7 @@ botcmds = [
         (f'{BotCommands.ListCommand}','Searches files in Drive'),
         (f'{BotCommands.StatusCommand}','Get Mirror Status message'),
         (f'{BotCommands.StatsCommand}','Bot Usage Stats'),
-        (f'{BotCommands.PingCommand}','Ping the Bot'),
-        (f'{BotCommands.RestartCommand}','Restart the bot [owner/sudo only]'),
-        (f'{BotCommands.LogCommand}','Get the Bot Log [owner/sudo only]')
+        (f'{BotCommands.RestartCommand}','Restart the bot [owner/sudo only]')
     ]
 
 
