@@ -43,22 +43,16 @@ def stats(update, context):
     cpuUsage = psutil.cpu_percent(interval=0.5)
     memory = psutil.virtual_memory().percent
     disk = psutil.disk_usage('/').percent
-    stats = f"〣 {CHAT_NAME} 〣\n\n" \
-            f'Rᴜɴɴɪɴɢ Sɪɴᴄᴇ : {currentTime}\n' \
-            f'Sᴛᴀʀᴛᴇᴅ Aᴛ : {current}\n\n' \
-            f'<b>DISK INFO</b>\n' \
-            f'<b><i>Total</i></b>: {total}\n' \
-            f'<b><i>Used</i></b>: {used} ~ ' \
-            f'<b><i>Free</i></b>: {free}\n\n' \
-            f'<b>DATA USAGE</b>\n' \
-            f'<b><i>UL</i></b>: {sent} ~ ' \
-            f'<b><i>DL</i></b>: {recv}\n\n' \
-            f'<b>SERVER STATS</b>\n' \
-            f'<b><i>CPU</i></b>: {cpuUsage}%\n' \
-            f'<b><i>RAM</i></b>: {memory}%\n' \
-            f'<b><i>DISK</i></b>: {disk}%\n'
-    keyboard = [[InlineKeyboardButton("CLOSE", callback_data="stats_close")]]
-    main = sendMarkup(stats, context.bot, update, reply_markup=InlineKeyboardMarkup(keyboard))
+    stats = f'<b>Bot Uptime:</b> <code>{currentTime}</code>\n' \
+            f'<b>Total Disk Space:</b> <code>{total}</code>\n' \
+            f'<b>Used:</b> <code>{used}</code> ' \
+            f'<b>Free:</b> <code>{free}</code>\n\n' \
+            f'<b>Upload:</b> <code>{sent}</code>\n' \
+            f'<b>Download:</b> <code>{recv}</code>\n\n' \
+            f'<b>CPU:</b> <code>{cpuUsage}%</code> ' \
+            f'<b>RAM:</b> <code>{memory}%</code> ' \
+            f'<b>DISK:</b> <code>{disk}%</code>'
+    sendMessage(stats, context.bot, update)
     
 
 def call_back_data(update, context):
