@@ -3,7 +3,7 @@ from telegram.ext import CommandHandler
 from telegram.message import Message
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
-from bot import GD_BUTTON, INDEX_BUTTON, VIEW_BUTTON
+from bot import GD_BUTTON
 from bot import Interval, INDEX_URL, BUTTON_FOUR_NAME, BUTTON_FOUR_URL, BUTTON_FIVE_NAME, BUTTON_FIVE_URL, BUTTON_SIX_NAME, BUTTON_SIX_URL, BLOCK_MEGA_FOLDER, BLOCK_MEGA_LINKS, VIEW_LINK, aria2
 from bot import dispatcher, DOWNLOAD_DIR, DOWNLOAD_STATUS_UPDATE_INTERVAL, download_dict, download_dict_lock, SHORTENER, SHORTENER_API, TAR_UNZIP_LIMIT
 from bot.helper.ext_utils import fs_utils, bot_utils
@@ -178,9 +178,9 @@ class MirrorListener(listeners.MirrorListeners):
                     share_url += '/'
                     if SHORTENER is not None and SHORTENER_API is not None:
                         siurl = short_url(share_url)
-                        buttons.buildbutton(f"{INDEX_BUTTON}", siurl)
+                        buttons.buildbutton("⚡ Index Link", siurl)
                     else:
-                        buttons.buildbutton(f"{INDEX_BUTTON}", share_url)
+                        buttons.buildbutton("⚡ Index Link", siurl)
                 else:
                     share_urls = f'{INDEX_URL}/{url_path}?a=view'
                     if SHORTENER is not None and SHORTENER_API is not None:
@@ -188,11 +188,11 @@ class MirrorListener(listeners.MirrorListeners):
                         buttons.buildbutton("⚡ Index Link", siurl)
                         if VIEW_LINK:
                             siurls = short_url(share_urls)
-                            buttons.buildbutton(f"{VIEW_BUTTON}", siurls)
+                            buttons.buildbutton("🌐 View Link", siurls)
                     else:
-                        buttons.buildbutton(f"{INDEX_BUTTON}", share_url)
+                        buttons.buildbutton("⚡ Index Link", siurl)
                         if VIEW_LINK:
-                            buttons.buildbutton(f"{VIEW_BUTTON}", share_urls)
+                            buttons.buildbutton("🌐 View Link", siurls)
             if BUTTON_FOUR_NAME is not None and BUTTON_FOUR_URL is not None:
                 buttons.buildbutton(f"{BUTTON_FOUR_NAME}", f"{BUTTON_FOUR_URL}")
             if BUTTON_FIVE_NAME is not None and BUTTON_FIVE_URL is not None:
