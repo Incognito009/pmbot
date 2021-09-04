@@ -48,7 +48,8 @@ def sendPrivate(text: str, bot, update: Update, reply_markup: InlineKeyboardMark
                              text=text, disable_web_page_preview=True, reply_markup=reply_markup, allow_sending_without_reply=True, parse_mode='HTMl')
     except Exception as e:
         LOGGER.error(str(e))
-        if "Forbidden" in str(e):
+        warn = True
+        if "Forbidden" in str(e) or warn:
             uname = f'<a href="tg://user?id={update.message.from_user.id}">{update.message.from_user.first_name}</a>'
             botstart = f"http://t.me/{b_uname}?start=start"
             keyboard = [
