@@ -247,6 +247,7 @@ def main():
         asyncio.get_event_loop().run_until_complete(start_server_async(SERVER_PORT))
 
     # Check if the bot is restarting
+    quo_te = Quote.print()
     if os.path.isfile(".restartmsg"):
         with open(".restartmsg") as f:
             chat_id, msg_id = map(int, f)
