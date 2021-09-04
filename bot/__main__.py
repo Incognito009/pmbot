@@ -254,7 +254,6 @@ def main():
     if LOG_GROUP is not None and isinstance(LOG_GROUP, str):
 
         try:
-            now=datetime.now(pytz.timezone('Asia/Kolkata'))
             current = now.strftime('%Y/%m/%d %I:%M:%P')
             dispatcher.bot.sendMessage(f"{LOG_GROUP}", f"Bot {BOT_NO} Successfully Restarted\n\nTime : {current}")
         except Unauthorized:
