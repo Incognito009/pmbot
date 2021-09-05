@@ -7,8 +7,8 @@ from datetime import datetime
 import datetime	
 import time
 import pytz
-from bot import AUTO_DELETE_MESSAGE_DURATION, LOGGER, bot, \
-    status_reply_dict, status_reply_dict_lock, download_dict, download_dict_lock, botStartTime, Interval, DOWNLOAD_STATUS_UPDATE_INTERVAL, LOG_UNAME, LOG_CHANNEL, botStartTime, dispatcher, OWNER_ID
+from bot import botStartTime, dispatcher, OWNER_ID, AUTO_DELETE_MESSAGE_DURATION, LOGGER, bot, \
+    status_reply_dict, status_reply_dict_lock, download_dict, download_dict_lock, LOG_UNAME, LOG_CHANNEL, Interval, DOWNLOAD_STATUS_UPDATE_INTERVAL, LOG_UNAME, LOG_CHANNEL, botStartTime, dispatcher, OWNER_ID
 from bot.helper.ext_utils.bot_utils import get_readable_message, get_readable_file_size, get_readable_time, MirrorStatus, progress_bar, setInterval
 from telegram.error import TimedOut, BadRequest
 
@@ -130,7 +130,7 @@ def update_all_messages():
                     uldl_bytes += float(speedy.split('M')[0]) * 1048576
         dlspeed = get_readable_file_size(dlspeed_bytes)
         ulspeed = get_readable_file_size(uldl_bytes)
-        msg += f"\n\n<b>🔺  DL:</b> {ulspeed}ps\n<b>🔻 DL:</b> {dlspeed}ps\n"
+        msg += f"\n\n<b>🔺  UL:</b> {ulspeed}ps\n<b>🔻 DL:</b> {dlspeed}ps\n"
     with status_reply_dict_lock:
         for chat_id in list(status_reply_dict.keys()):
             if status_reply_dict[chat_id] and msg != status_reply_dict[chat_id].text:
@@ -146,7 +146,7 @@ def update_all_messages():
                         editMessage(msg, status_reply_dict[chat_id], buttons, reply_markup=InlineKeyboardMarkup(keyboard))
                 except Exception as e:
                     LOGGER.error(str(e))
-                status_reply_dict[chat_id].text = 
+                status_reply_dict[chat_id].text = msg
 
 
 def sendStatusMessage(msg, bot):
