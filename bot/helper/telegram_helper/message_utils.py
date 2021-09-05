@@ -110,7 +110,9 @@ def update_all_messages():
     msg, buttons = get_readable_message()
     if msg is None:
         return
-    msg += f"<b>🕊️ Free:</b> {free}"
+    msg += f"<b>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</b>\n\n" \
+           f"<b>BOT UPTIME :</b> <b>{currentTime}</b>\n\n"
+    msg += f"\n\n<b>🕊️ Free:</b> {free}"
     with download_dict_lock:
         dlspeed_bytes = 0
         uldl_bytes = 0
@@ -128,18 +130,23 @@ def update_all_messages():
                     uldl_bytes += float(speedy.split('M')[0]) * 1048576
         dlspeed = get_readable_file_size(dlspeed_bytes)
         ulspeed = get_readable_file_size(uldl_bytes)
-        msg += f"\n\n<b>🔺 UL:</b> {ulspeed}ps\n<b>🔻 DL:</b> {dlspeed}ps\n"
+        msg += f"\n\n<b>🔺  DL:</b> {ulspeed}ps\n<b>🔻 DL:</b> {dlspeed}ps\n"
     with status_reply_dict_lock:
         for chat_id in list(status_reply_dict.keys()):
             if status_reply_dict[chat_id] and msg != status_reply_dict[chat_id].text:
+                if len(msg) == 0:
+                    msg = "Starting DL"
                 try:
+                    keyboard = [[InlineKeyboardButton("REFRESH", callback_data=str(ONE)),
+                                 InlineKeyboardButton("CLOSE", callback_data=str(TWO)),],
+                                [InlineKeyboardButton("STATS", callback_data=str(THREE)),]]
                     if buttons == "":
                         editMessage(msg, status_reply_dict[chat_id])
                     else:
-                        editMessage(msg, status_reply_dict[chat_id], buttons)
+                        editMessage(msg, status_reply_dict[chat_id], buttons, reply_markup=InlineKeyboardMarkup(keyboard))
                 except Exception as e:
                     LOGGER.error(str(e))
-                status_reply_dict[chat_id].text = msg
+                status_reply_dict[chat_id].text = 
 
 
 def sendStatusMessage(msg, bot):
@@ -151,7 +158,9 @@ def sendStatusMessage(msg, bot):
     progress, buttons = get_readable_message()
     if progress is None:
         progress, buttons = get_readable_message()
-    progress += f"<b>🕊️ Free:</b> {free}"
+    progress += f"<b>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</b>\n\n" \
+           f"<b>BOT UPTIME :</b> <b>{currentTime}</b>\n\n"
+    progress += f"\n\n<b>🕊️ Free:</b> {free}"
     with download_dict_lock:
         dlspeed_bytes = 0
         uldl_bytes = 0
@@ -184,3 +193,54 @@ def sendStatusMessage(msg, bot):
         else:
             message = sendMarkup(progress, bot, msg, buttons)
         status_reply_dict[msg.message.chat.id] = message
+
+
+ONE, TWO, THREE = range(3)
+
+def refresh(update, context):
+    query = update.callback_query
+    query.edit_message_text(text="Refreshing Status...⏳")
+    time.sleep(2)
+    update_all_messages()
+    
+def close(update, context):
+    chat_id  = update.effective_chat.id
+    user_id = update.callback_query.from_user.id
+    bot = context.bot
+    query = update.callback_query
+    admins = bot.get_chat_member(chat_id, user_id).status in ['creator', 'administrator'] or user_id in [OWNER_ID]
+    if admins:
+        delete_all_messages()
+    else:
+        query.answer(text="You Don't Have Admin Rights!", show_alert=True)
+        
+def pop_up_stats(update, context):
+    query = update.callback_query
+    stats = bot_sys_stats()
+    query.answer(text=stats, show_alert=True)
+
+def bot_sys_stats():
+    currentTime = get_readable_time(time.time() - botStartTime)
+    cpu = psutil.cpu_percent()
+    mem = psutil.virtual_memory().percent
+    disk = psutil.disk_usage("/").percent
+    total, used, free = shutil.disk_usage('.')
+    total = get_readable_file_size(total)
+    used = get_readable_file_size(used)
+    free = get_readable_file_size(free)
+    recv = get_readable_file_size(psutil.net_io_counters().bytes_recv)
+    sent = get_readable_file_size(psutil.net_io_counters().bytes_sent)
+    stats = f"""
+BOT UPTIME 🕐 : {currentTime}
+CPU : {progress_bar(cpu)} {cpu}%
+RAM : {progress_bar(mem)} {mem}%
+DISK : {progress_bar(disk)} {disk}%
+TOTAL : {total}
+USED : {used} || FREE : {free}
+SENT : {sent} || RECV : {recv}
+"""
+    return stats
+
+dispatcher.add_handler(CallbackQueryHandler(refresh, pattern='^' + str(ONE) + '$'))
+dispatcher.add_handler(CallbackQueryHandler(close, pattern='^' + str(TWO) + '$'))
+dispatcher.add_handler(CallbackQueryHandler(pop_up_stats, pattern='^' + str(THREE) + '$'))
