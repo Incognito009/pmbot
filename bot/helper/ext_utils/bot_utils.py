@@ -108,10 +108,7 @@ def getAllDownload():
 def get_progress_bar_string(status):
     completed = status.processed_bytes() / 8
     total = status.size_raw() / 8
-    if total == 0:
-        p = 0
-    else:
-        p = round(completed * 100 / total)
+    p = 0 if total == 0 else round(completed * 100 / total)
     p = min(max(p, 0), 100)
     cFull = p // 8
     cPart = p % 8 - 1
@@ -130,8 +127,6 @@ def progress_bar(percentage):
     #percentage is on the scale of 0-1
     comp = FINISHED_PROGRESS_STR
     ncomp = UNFINISHED_PROGRESS_STR
-    pr = ""
-
     if isinstance(percentage, str):
         return "NaN"
 
@@ -140,12 +135,7 @@ def progress_bar(percentage):
     except:
         percentage = 0
 
-    for i in range(1,11):
-        if i <= int(percentage/10):
-            pr += comp
-        else:
-            pr += ncomp
-    return pr
+    return "".join(comp if i <= int(percentage/10) else ncomp for i in range(1,11))
 
 
 def get_readable_message():

@@ -65,14 +65,19 @@ class GoogleDriveHelper:
 
     def drive_query(self, parent_id, fileName):
         query = f"'{parent_id}' in parents and (name contains '{fileName}')"
-        response = self.__service.files().list(supportsTeamDrives=True,
-                                               includeTeamDriveItems=True,
-                                               q=query,
-                                               spaces='drive',
-                                               pageSize=200,
-                                               fields='files(id, name, mimeType, size)',
-                                               orderBy='modifiedTime desc').execute()["files"]
-        return response
+        return (
+            self.__service.files()
+            .list(
+                supportsTeamDrives=True,
+                includeTeamDriveItems=True,
+                q=query,
+                spaces='drive',
+                pageSize=200,
+                fields='files(id, name, mimeType, size)',
+                orderBy='modifiedTime desc',
+            )
+            .execute()["files"]
+        )
 
     def escapes(self, str):
         chars = ['\\', "'", '"', r'\a', r'\b', r'\f', r'\n', r'\r', r'\t']
@@ -109,14 +114,12 @@ class GoogleDriveHelper:
     
     def drive_list(self, fileName):
         msg = ''
-        INDEX = -1
         content_count = 0
         add_title_msg = True
-        for parent_id in DRIVE_ID :
-            response = self.drive_query(parent_id, fileName)    
-            INDEX += 1          
+        for INDEX, parent_id in enumerate(DRIVE_ID):
+            response = self.drive_query(parent_id, fileName)
             if response:
-                if add_title_msg == True:
+                if add_title_msg:
                     msg = f'<h3>Sᴇᴀʀᴄʜ Rᴇsᴜʟᴛs Fᴏʀ : {fileName}</h3><br><b><a href="https://cloud4.az0707.workers.dev/1:/Cloud%204"> Index Homepage </a></b> ||<b><a href="https://t.me/deity07"> Owner </a></b><br><br>'
                     add_title_msg = False
                 msg += f"╾────────────╼<br><b>{DRIVE_NAME[INDEX]}</b><br>╾────────────╼<br>"
@@ -156,12 +159,12 @@ class GoogleDriveHelper:
                                                         html_content=content
                                                         )['path'])
 
-        self.num_of_path = len(self.path)      
+        self.num_of_path = len(self.path)
         if self.num_of_path > 1:
             self.edit_telegraph()
 
         msg = f"Search Results For {fileName} "
-        buttons = button_build.ButtonMaker()   
+        buttons = button_build.ButtonMaker()
         buttons.buildbutton("Click Here For Results", f"https://telegra.ph/{self.path[0]}")
 
         return msg, InlineKeyboardMarkup(buttons.build_menu(1))

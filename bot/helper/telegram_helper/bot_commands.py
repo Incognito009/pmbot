@@ -2,7 +2,7 @@ from bot import BOT_NO
 
 class _BotCommands:
     def __init__(self):
-        self.StartCommand = f'start'
+        self.StartCommand = 'start'
         self.PingCommand = 'ping'
         self.HelpCommand = f'help{BOT_NO}'
         self.LogCommand = f'log{BOT_NO}'
@@ -27,15 +27,15 @@ class _BotCommands:
         self.AddSudoCommand = f'addsudo{BOT_NO}'
         self.RmSudoCommand = f'rmsudo{BOT_NO}'
 
-        
+
         self.RestartCommand = f're{BOT_NO}'
         self.RebootCommand = f'reboot{BOT_NO}'
-        
-        
+
+
         self.SpeedCommand = 'speedtest'
 
-        self.CloneCommand = f'clone'
-        self.CountCommand = f'count'
+        self.CloneCommand = 'clone'
+        self.CountCommand = 'count'
 
         self.WatchCommand = f'ytdl{BOT_NO}'
         self.TarWatchCommand = f'ytdltar{BOT_NO}'

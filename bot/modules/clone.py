@@ -68,14 +68,16 @@ def cloneNode(update, context):
         if uname is not None:
             cc = f'\n\n<b>#Cloned By {uname}</b>\n\n<b>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</b>'
             men = f'{uname} '
-            msg_g = f'\n\n - <b><i>Never Share G-Drive/Index Link.</i></b>\n - <b><i>Join TD To Access G-Drive Link.</i></b>\n\n<b>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</b>'
-            fwdpm = f'\n\n<b>You Can Find Upload In Private Chat</b>\n\n<b>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</b>'
-        if button == "cancelled" or button == "":
+            msg_g = '\n\n - <b><i>Never Share G-Drive/Index Link.</i></b>\n - <b><i>Join TD To Access G-Drive Link.</i></b>\n\n<b>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</b>'
+
+            fwdpm = '\n\n<b>You Can Find Upload In Private Chat</b>\n\n<b>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</b>'
+
+        if button in ["cancelled", ""]:
             sendMessage(men + result, context.bot, update)
         else:
             logmsg = sendLog(result + cc + msg_g, context.bot, update, button)
             if logmsg:
-                log_m = f"\n\n<b>Link Uploaded, Click Below Button</b>"
+                log_m = '\n\n<b>Link Uploaded, Click Below Button</b>'
                 sendMarkup(result + cc + log_m + fwdpm, context.bot, update, InlineKeyboardMarkup([[InlineKeyboardButton(text="CLICK HERE", url=logmsg.link)]]))
                 sendPrivate(result + cc + msg_g, context.bot, update, button)
     else:

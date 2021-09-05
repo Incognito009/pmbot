@@ -135,7 +135,7 @@ try:
     BOT_NO = getConfig('BOT_NO')
 except KeyError:
     BOT_NO = ""
-    
+
 try:
     BOT_TOKEN = getConfig('BOT_TOKEN')
     LOG_GROUP = getConfig("LOG_GROUP")
@@ -155,7 +155,7 @@ try:
 except KeyError as e:
     LOGGER.error("One or more env variables missing! Exiting now")
     exit(1)
-    
+
 try:
     DB_URI = getConfig('DATABASE_URL')
     if len(DB_URI) == 0:
@@ -294,7 +294,7 @@ try:
     if len(GD_BUTTON) == 0:
         GD_BUTTON = None
 except KeyError:
-    GD_BUTTON = '☁️ Google Drive ☁️'    
+    GD_BUTTON = '☁️ Google Drive ☁️'
 try:
     VIEW_LINK = getConfig('VIEW_LINK')
     VIEW_LINK = VIEW_LINK.lower() == 'true'
@@ -392,9 +392,7 @@ if os.path.exists('drive_folder'):
             except IndexError as e:
                 INDEX_LINK.append(None)
 
-if DRIVE_ID :
-    pass
-else :
+if not DRIVE_ID:
     LOGGER.error("The README.md file there to be read! Exiting now!")
     exit(1)
 

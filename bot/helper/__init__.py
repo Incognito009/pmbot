@@ -17,20 +17,18 @@ def get_text(message: Message) -> [None, str]:
     text_to_return = message.text
     if message.text is None:
         return None
-    if " " in text_to_return:
-        try:
-            return message.text.split(None, 1)[1]
-        except IndexError:
-            return None
-    else:
+    if " " not in text_to_return:
+        return None
+
+    try:
+        return message.text.split(None, 1)[1]
+    except IndexError:
         return None
 
 # Preparing For Setting Config
 # Implement by https://github.com/jusidama18 and Based on this https://github.com/DevsExpo/FridayUserbot/blob/master/plugins/heroku_helpers.py
 
-heroku_client = None
-if HEROKU_API_KEY:
-    heroku_client = heroku3.from_key(HEROKU_API_KEY)
+heroku_client = heroku3.from_key(HEROKU_API_KEY) if HEROKU_API_KEY else None
 
 def check_heroku(func):
     @wraps(func)

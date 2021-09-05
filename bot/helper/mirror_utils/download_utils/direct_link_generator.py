@@ -32,11 +32,11 @@ def direct_link_generator(link: str):
     if not link:
         raise DirectDownloadLinkException("`No links found!`")
     elif 'youtube.com' in link or 'youtu.be' in link or 'sonyliv.' in link or 'mxplayer.' in link or 'hotstar.' in link or 'zee5.' in link or'voot.' in link:
-        raise DirectDownloadLinkException(f"YTDL Link Detected\nUse YTDL Bots")
+        raise DirectDownloadLinkException('YTDL Link Detected\nUse YTDL Bots')
     elif 'dood.to' in link or 'yuudrive.' in link or 'gplinks.' in link or 'gp.links' in link or't.me' in link or 'gdtot.' in link or 'sharer.' in link or 'pdisk.' in link or 'Pdisk.' in link or 'driveapp.' in  link or 'nitroflare.' in link:
-        raise DirectDownloadLinkException(f"These Links Not Supported Yet")
+        raise DirectDownloadLinkException('These Links Not Supported Yet')
     elif '0:/' in link and link.endswith("/") or '1:/' in link and link.endswith("/") or '2:/' in link and link.endswith("/") or '3:/' in link and link.endswith("/") or '4:/' in link and link.endswith("/") or '5:/' in link and link.endswith("/") or '6:/' in link and link.endswith("/"):
-        raise DirectDownloadLinkException(f"Index Folder Not Supported")
+        raise DirectDownloadLinkException('Index Folder Not Supported')
     elif '?a=view' in link:
         return link.replace("?a=view", "")
     elif 'zippyshare.com' in link:
@@ -48,7 +48,10 @@ def direct_link_generator(link: str):
     elif 'mediafire.com' in link:
         return mediafire(link)
     elif 'uptobox.com' in link:
-        raise DirectDownloadLinkException(f"Uptobox Is Not Supported\nBecause We Don't Have Uptobox Premium Account")
+        raise DirectDownloadLinkException(
+            "Uptobox Is Not Supported\nBecause We Don't Have Uptobox Premium Account"
+        )
+
     elif 'osdn.net' in link:
         return osdn(link)
     elif 'github.com' in link:
@@ -156,8 +159,7 @@ def cm_ru(url: str) -> str:
         data = json.loads(result)
     except json.decoder.JSONDecodeError:
         raise DirectDownloadLinkException("Error: Can't extract the link\n")
-    dl_url = data['download']
-    return dl_url        
+    return data['download']        
 
 
 def uptobox(url: str) -> str:

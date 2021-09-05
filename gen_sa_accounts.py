@@ -24,7 +24,7 @@ sleep_time = 30
 # Create count SAs in project
 def _create_accounts(service, project, count):
     batch = service.new_batch_http_request(callback=_def_batch_resp)
-    for i in range(count):
+    for _ in range(count):
         aid = _generate_id('mfc-')
         batch.add(service.projects().serviceAccounts().create(name='projects/' + project, body={'accountId': aid,
                                                                                                 'serviceAccount': {
@@ -76,7 +76,7 @@ def _create_projects(cloud, count):
     global project_create_ops
     batch = cloud.new_batch_http_request(callback=_pc_resp)
     new_projs = []
-    for i in range(count):
+    for _ in range(count):
         new_proj = _generate_id()
         new_projs.append(new_proj)
         batch.add(cloud.projects().create(body={'project_id': new_proj}))
